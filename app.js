@@ -25,37 +25,30 @@ const initializeDBAndServer = async () => {
 };
 initializeDBAndServer();
 const inValidScenarios = (request, response, next) => {
-    const {
+  const {
     status = "",
     priority = "",
     category = "",
-    date=""
+    date = "",
   } = request.query;
-  const statusValueList=[TO DO,IN PROGRESS,DONE];
-  const priorityValueList=[HIGH,MEDIUM,LOW];
-  const categoryValueList=[WORK,HOME,LEARNING];
-  if (!statusValueList.includes(status)){
+  const statusValueList = ["TO DO", "IN PROGRESS", "DONE", ""];
+  const priorityValueList = ["HIGH", "MEDIUM", "LOW", ""];
+  const categoryValueList = ["WORK", "HOME", "LEARNING", ""];
+  if (!statusValueList.includes(status)) {
     response.status(400);
     response.send("Invalid Todo Status");
-  }
-  else if (!priorityValueList.includes(priority)){
-      response.status(400);
-      response.send("Invalid Todo Priority");
-  }
-  else if (!categoryValueList.includes(category)){
-      response.status(400);
-      response.send("Invalid Todo Category");
-  }
-  else if (!isValid(new Date(date))){
-      response.status(400);
-      response.send("Invalid Due Date");
-  }
-  else{
-      next();
+  } else if (!priorityValueList.includes(priority)) {
+    response.status(400);
+    response.send("Invalid Todo Priority");
+  } else if (!categoryValueList.includes(category)) {
+    response.status(400);
+    response.send("Invalid Todo Category");
+  } else {
+    next();
   }
 };
 //API 1
-app.get(`/todos/`,inValidScenarios, async (request, response) => {
+app.get(`/todos/`, inValidScenarios, async (request, response) => {
   const {
     status = "",
     priority = "",
@@ -80,7 +73,7 @@ app.get(`/todos/`,inValidScenarios, async (request, response) => {
   response.send(getTodosArray);
 });
 //API 2
-app.get("/todos/:todoId/",inValidScenarios, async (request, response) => {
+app.get("/todos/:todoId/", inValidScenarios, async (request, response) => {
   const { todoId } = request.params;
   const getTodoQuery = `
   SELECT 
@@ -97,7 +90,7 @@ app.get("/todos/:todoId/",inValidScenarios, async (request, response) => {
   response.send(getTodo);
 });
 //API3
-app.get("/agenda/?date=:date",inValidScenarios, async (request, response) => {
+app.get("/agenda/", inValidScenarios, async (request, response) => {
   const { date } = request.query;
   const newDate = format(new Date(date), "yyyy-MM-dd");
   const getTodosAgendaQuery = `
@@ -114,17 +107,17 @@ app.get("/agenda/?date=:date",inValidScenarios, async (request, response) => {
   response.send(getTodosAgendaArray);
 });
 //API 4
-app.post("/todos/",inValidScenarios, async (request, response) => {
+app.post("/todos/", inValidScenarios, async (request, response) => {
   const { id, todo, priority, status, category, dueDate } = request.body;
   const postTodoQuery = `
     INSERT INTO todo(id,todo,priority,status,category,due_date)
     VALUES(${id},'${todo}','${priority}','${status}', '${category}', '${dueDate}');
     `;
-  const postTodo = await db.run(postTodoQuery);
+  await db.run(postTodoQuery);
   response.send("Todo Successfully Added");
 });
 //API 5
-app.put("/todos/:todoId/",inValidScenarios, async (request, response) => {
+app.put("/todos/:todoId/", inValidScenarios, async (request, response) => {
   const { todoId } = request.params;
   let updateColumn;
   const requestBody = request.body;
@@ -173,7 +166,7 @@ app.put("/todos/:todoId/",inValidScenarios, async (request, response) => {
   response.send(`${updateColumn} Updated`);
 });
 //API 6
-app.delete("/todos/:todoId/",inValidScenarios, async (request, response) => {
+app.delete("/todos/:todoId/", inValidScenarios, async (request, response) => {
   const { todoId } = request.params;
   const deleteTodoQuery = `
     DELETE FROM todo
